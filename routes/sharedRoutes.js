@@ -19,10 +19,17 @@ const upload = multer({ storage });
 sharedRoutes.use(authenticatedUser);
 
 sharedRoutes.get("/", profile);
+
 sharedRoutes.put(
   "/upload-profile-picture",
   upload.single("picture"),
   profilePicture
 );
 
-module.exports = sharedRoutes;
+// sharedRoutes.put(
+//   "/upload-profile-picture",
+//   upload.("picture"),
+//   profilePicture
+// );
+
+module.exports = { storage, sharedRoutes };

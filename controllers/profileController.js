@@ -1,8 +1,7 @@
-// const multer = require("multer");
 const usersModel = require("../models/usersModel");
-const cloudinary = require("cloudinary");
-// const { v4 } = require("uuid");
-
+const fs = require("fs");
+const path = require("path");
+const cloudinary = require("cloudinary").v2;
 const profile = async (req, res, next) => {
   try {
     const user = await usersModel.findById(req.user.userId, {
@@ -25,11 +24,21 @@ const profile = async (req, res, next) => {
 
 const profilePicture = async (req, res, next) => {
   try {
-    const uploadResult = await cloudinary.v2.uploader.upload(req.file.path, {
+    const filePath = req.file.path;
+
+    console.log(filePath);
+    const uploadResult = await cloudinary.uploader.upload(filePath, {
       resource_type: "image",
-      uploade_preset: "kodecamp4",
+      upload_preset: "kodecamp4",
     });
-    // console.log(uploadResult);
+
+    // Remove the local file after successful upload
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(`Failed to delete local file: ${filePath}`, err);
+      }
+    });
+    console.log(uploadResult);
 
     await usersModel.findByIdAndUpdate(req.user.userId, {
       profilePictureURL: uploadResult.secure_url,

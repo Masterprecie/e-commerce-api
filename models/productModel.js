@@ -14,12 +14,12 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
-    stock: {
-      type: String,
+    quantity: {
+      type: Number,
       required: true,
     },
-    productImage: {
-      type: String,
+    productImages: {
+      type: Array,
       default: "",
     },
   },

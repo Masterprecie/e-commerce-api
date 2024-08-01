@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const authenticatedUser = (req, res, next) => {
-  //   console.log(req.headers);
   try {
     const strategyAndToken = req.headers.authorization.split(" ");
-    console.log(strategyAndToken);
+    // console.log(strategyAndToken);
     const strategy = strategyAndToken[0];
     const tokenItSelf = strategyAndToken[1];
 

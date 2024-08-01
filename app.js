@@ -8,7 +8,8 @@ require("dotenv").config();
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const sharedRoutes = require("./routes/sharedRoutes");
+const userRoutes = require("./routes/userRoutes");
+const { sharedRoutes } = require("./routes/sharedRoutes");
 
 const app = express();
 
@@ -41,6 +42,7 @@ mongoose
 app.use("/v1/auth", authRoutes);
 app.use("/v1/profile", sharedRoutes);
 app.use("/v1/admin", adminRoutes);
+app.use("/v1/user", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Precious E-commerce store!");
