@@ -1,8 +1,6 @@
 const { order } = require("../models/orderModel");
 const productModel = require("../models/productModel");
-const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
-const path = require("path");
+const { uploadMultipleImagesToCloudinary } = require("../utils/helpers");
 
 const getAllProducts = async (req, res, next) => {
   try {
@@ -19,56 +17,21 @@ const getAllProducts = async (req, res, next) => {
 
 const addProduct = async (req, res, next) => {
   try {
-    // const productImages = await cloudinary.v2.uploader.upload(req.file.path, {
-    //   resource_type: "image",
-    //   uploade_preset: "kodecamp4",
-    // });
-    // console.log(productImages);
-
     const files = req.files;
-    console.log(files);
 
     if (!files || files.length === 0) {
       return res.status(400).send({ message: "No images uploaded" });
     }
 
     // Upload images to Cloudinary
-    const imageUploadPromises = files.map((file) => {
-      const filePath = path.join(
-        __dirname,
-        "../public",
-        "images",
-        file.filename
-      );
+    const imageUrls = await uploadMultipleImagesToCloudinary(files);
 
-      // Use a promise to handle the file upload
-      return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload(
-          filePath,
-          {
-            resource_type: "image",
-            upload_preset: "kodecamp4",
-          },
-          (error, result) => {
-            if (error) {
-              return reject(error);
-            }
-            // Remove the local file after uploading
-            fs.unlinkSync(filePath);
-            resolve(result.secure_url);
-          }
-        );
-      });
-    });
+    // console.log(imageUrls);
 
-    // Resolve all upload promises
-    const imageUrls = await Promise.all(imageUploadPromises);
-    console.log(imageUrls);
-
-    const { productName, description, price, quantity } = req.body;
+    const { productName, description, price, stock } = req.body;
 
     // Check if all required fields are provided
-    if (!productName || !description || !price || !quantity) {
+    if (!productName || !description || !price || !stock) {
       return res.status(400).send({ message: "All fields are required" });
     }
 
@@ -76,7 +39,7 @@ const addProduct = async (req, res, next) => {
       productName,
       description,
       price,
-      quantity,
+      stock,
       productImages: imageUrls,
     });
 
@@ -115,20 +78,31 @@ const getSingleProduct = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const { productName, description, price, quantity } = req.body;
+    const { productName, description, price, stock } = req.body;
+    const files = req.files;
+
+    const updateData = {};
+
+    // Only include fields if they are provided
+    if (productName) updateData.productName = productName;
+    if (description) updateData.description = description;
+    if (price) updateData.price = price;
+    if (stock) updateData.stock = stock;
+    // Check if new images are uploaded
+    if (files && files.length > 0) {
+      const imageUrls = await uploadImagesToCloudinary(files);
+      updateData.productImages = imageUrls;
+    }
 
     const updatedProduct = await productModel.findByIdAndUpdate(
       productId,
-      {
-        productName,
-        description,
-        price,
-        quantity,
-      },
+      updateData,
       {
         new: true,
+        runValidators: true,
       }
     );
+
     res.status(200).send({
       message: "Product updated successfully",
       updatedProduct,

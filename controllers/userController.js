@@ -52,6 +52,14 @@ const createOrder = async (req, res, next) => {
             .send({ message: `Product not found: ${item.productId}` });
         }
 
+        //checks if the stock is enough for the order
+        if (product.stock < item.quantity) {
+          res.status(400).send({
+            message: `Insufficient stock for product: ${product.productName}`,
+          });
+          return;
+        }
+
         //calculate the total cost for this product
         const totalCost = product.price * item.quantity;
 
@@ -63,21 +71,16 @@ const createOrder = async (req, res, next) => {
           price: product.price,
           totalCost,
         });
+      }
 
-        //  if (product.stock < item.quantity) {
-        //    return res
-        //      .status(400)
-        //      .send({
-        //        message: `Insufficient stock for product: ${product.name}`,
-        //      });
-        //  }
-
-        // product.stock -= item.quantity
-        // await product.save()
+      for (const item of items) {
+        const product = await productModel.findById(item.productId);
+        product.stock -= item.quantity;
+        await product.save();
       }
 
       //create the order
-      await order.create({
+      const newOrder = await order.create({
         customerId,
         orderItems: items,
         totalCost: totalOrderCost,
@@ -85,7 +88,7 @@ const createOrder = async (req, res, next) => {
 
       res.status(201).send({
         message: "Order created successfully",
-        order,
+        order: newOrder,
       });
     } catch (error) {
       console.error(error);
@@ -116,7 +119,7 @@ const getCustomerOrders = async (req, res, next) => {
       limit,
       populate: {
         path: "orderItems.productId",
-        select: "-createdAt -updatedAt  -__v",
+        select: "-stock -createdAt -updatedAt  -__v",
       },
       sort: { createdAt: -1 },
     };

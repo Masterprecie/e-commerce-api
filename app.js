@@ -9,7 +9,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
-const { sharedRoutes } = require("./routes/sharedRoutes");
+const sharedRoutes = require("./routes/sharedRoutes");
 
 const app = express();
 

@@ -57,7 +57,8 @@ npm run dev
 ### Users
 
 - **View all products**: Users can participate in a quiz by sending a GET request to `/products/:page/:limit`.
-- **Create a product order**: Users can create a product order by sending a GET request to `/product/order`.
+- **Create a product order**: Users can create a product order by sending a POST request to `/product/order`.
+- **view their orders**: Users can view all their orders created by sending a GET to `/orders/customerId/:page/:limit`.
 
 ## Technologies
 
@@ -65,6 +66,8 @@ npm run dev
 - Express.js
 - MongoDB
 - Mongoose
+- Multer
+- Cloudinary
 - Jest
 
 ## Contributing
