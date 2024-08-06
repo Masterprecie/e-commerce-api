@@ -35,8 +35,9 @@ const getSingleProduct = async (req, res, next) => {
 
 const createOrder = async (req, res, next) => {
   try {
-    const { customerId, orderItems } = req.body;
-    if (!customerId || !orderItems || orderItems.length === 0) {
+    const { orderItems } = req.body;
+    const customerId = req.user.userId;
+    if (!orderItems || orderItems.length === 0) {
       return res.status(400).send({ message: "Invalid order data" });
     }
 
