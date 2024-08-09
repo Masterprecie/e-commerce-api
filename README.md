@@ -6,8 +6,8 @@ This is an ecommerce store API that involves regular users and admin users
 
 ## Features
 
-- Admin can create, update, and delete products.
-- Users can view all products and checkout product.
+- Admin can create, update, view , delete products, view all customers orders, approve or decline orders.
+- Users can view all products, get a single product create orders and view orders created.
 - Pagination support for product.
 - Testing with jest and supertest.
 
@@ -48,17 +48,19 @@ npm run dev
 
 ### Admin
 
-- **Create a product**: Admin can create a new product by sending a POST request to `/product` with the product details.
-- **get all product**: Admin can get all existing products by sending a GET request to `/products/:page/:limit`
-- **get single product**: Admin can get a product by sending a GET request to `/product/:productId`
-- **Update a product**: Admin can update an existing quiz by sending a PUT request to `/product/:productId` with the updated details.
-- **Delete a product**: Admin can delete a quiz by sending a DELETE request to `/product/:productId`.
+- **Create a product**: Admin can create a new product by sending a POST request to `/v1/product` with the product details.
+- **get all product**: Admin can get all existing products by sending a GET request to `/v1/products/:page/:limit`
+- **get single product**: Admin can get a product by sending a GET request to `/v1/product/:productId`
+- **Update a product**: Admin can update an existing quiz by sending a PUT request to `/v1/product/:productId` with the updated details.
+- **Delete a product**: Admin can delete a quiz by sending a DELETE request to `/v1/product/:productId`.
+- **View all orders**: Admin can delete a quiz by sending a DELETE request to `/v1/admin/orders/:page/:limit`.
+- **Approve an order**: Admin can delete a quiz by sending a DELETE request to `/v1/admin/order/:orderId`.
 
 ### Users
 
-- **View all products**: Users can participate in a quiz by sending a GET request to `/products/:page/:limit`.
-- **Create a product order**: Users can create a product order by sending a POST request to `/product/order`.
-- **view their orders**: Users can view all their orders created by sending a GET to `/orders/customerId/:page/:limit`.
+- **View all products**: Users can participate in a quiz by sending a GET request to `/v1/user/products/:page/:limit`.
+- **Create a product order**: Users can create a product order by sending a POST request to `/v1//user/product/order`.
+- **view their orders**: Users can view all their orders created by sending a GET to `/v1/user/orders/:page/:limit`.
 
 ## Technologies
 
@@ -69,6 +71,7 @@ npm run dev
 - Multer
 - Cloudinary
 - Jest
+- Supertest
 
 ## Contributing
 

@@ -90,7 +90,7 @@ const updateProduct = async (req, res, next) => {
     if (stock) updateData.stock = stock;
     // Check if new images are uploaded
     if (files && files.length > 0) {
-      const imageUrls = await uploadImagesToCloudinary(files);
+      const imageUrls = await uploadMultipleImagesToCloudinary(files);
       updateData.productImages = imageUrls;
     }
 
