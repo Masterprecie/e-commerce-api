@@ -31,7 +31,8 @@ cloudinary.config({
 
 //Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URL)
+  // .connect(process.env.MONGODB_URL)
+  .connect(process.env.MONGODB_URL_TEST)
   .then(() => {
     console.log("Connected to MongoDB");
   })

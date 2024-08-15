@@ -130,12 +130,27 @@ const loginUser = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
-      process.env.AUTH_KEY
+      process.env.AUTH_KEY,
+      { expiresIn: "30m" }
     );
+
+    const refreshToken = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.REFRESH_KEY,
+      { expiresIn: "7d" }
+    );
+
+    user.refreshToken = refreshToken;
+    await user.save();
 
     res.status(200).send({
       message: "Login successful",
       access_token: token,
+      refresh_token: refreshToken,
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -234,10 +249,53 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const refreshToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      res.status(400).send({
+        message: "Refresh token is required",
+      });
+      return;
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_KEY);
+    const user = await usersModel.findById(decoded.userId);
+
+    if (!user || user.refreshToken !== refreshToken) {
+      res.status(401).send({
+        message: "Invalid refresh token",
+      });
+      return;
+    }
+
+    const newAccessToken = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.AUTH_KEY,
+      { expiresIn: "30m" }
+    );
+    res.status(200).send({
+      message: "Token refreshed successfully",
+      access_token: newAccessToken,
+    });
+  } catch (error) {
+    next(error);
+    res.status(500).send({
+      message: "An error occurred while refreshing the token",
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   verifyEmail,
   loginUser,
   forgetPassword,
   resetPassword,
+  refreshToken,
 };

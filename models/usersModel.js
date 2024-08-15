@@ -38,6 +38,10 @@ const userSchema = new Schema(
       enum: ["admin", "user"],
       default: "user",
     },
+    refreshToken: {
+      type: String,
+      require: true,
+    },
   },
   { timestamps: true }
 );

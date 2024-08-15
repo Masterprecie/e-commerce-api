@@ -7,6 +7,7 @@ const profile = async (req, res, next) => {
       password: 0,
       authToken: 0,
       authPurpose: 0,
+      refreshToken: 0,
       createdAt: 0,
       updatedAt: 0,
     });

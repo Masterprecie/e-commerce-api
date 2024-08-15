@@ -5,6 +5,7 @@ const {
   loginUser,
   forgetPassword,
   resetPassword,
+  refreshToken,
 } = require("../controllers/authController");
 
 const authRoutes = express.Router();
@@ -14,6 +15,8 @@ authRoutes.post("/register", registerUser);
 authRoutes.get("/verify-email/:token", verifyEmail);
 
 authRoutes.post("/login", loginUser);
+
+authRoutes.post("/refresh-token", refreshToken);
 
 authRoutes.post("/forget-password", forgetPassword);
 
