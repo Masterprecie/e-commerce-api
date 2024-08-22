@@ -4,14 +4,17 @@ const {
   verifyPayment,
   getTransactionsByUser,
 } = require("../controllers/paymentController");
+const authenticatedUser = require("../middleware/authenticatedUser");
 
 const paymentRoutes = express.Router();
+
+paymentRoutes.use(authenticatedUser);
 
 /**
  * @swagger
  * tags:
  *  name: Payment
- * description: Payment management
+ * description: Payment
  */
 
 /**
@@ -20,6 +23,8 @@ const paymentRoutes = express.Router();
  *   post:
  *     summary: Payment
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -51,6 +56,15 @@ paymentRoutes.post("/paystack/pay", initializePayment);
  *   post:
  *     summary: Verify Payment
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: reference
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The reference of the payment to verify
  *     requestBody:
  *       required: true
  *       content:
@@ -58,14 +72,10 @@ paymentRoutes.post("/paystack/pay", initializePayment);
  *           schema:
  *             type: object
  *             properties:
- *               reference:
- *                 type: string
- *                 description: The reference of the payment to verify
  *               userId:
  *                 type: string
  *                 description: The ID of the user making the payment
  *             required:
- *               - reference
  *               - userId
  *     responses:
  *       200:
@@ -83,6 +93,8 @@ paymentRoutes.post("/paystack/callback", verifyPayment);
  *   get:
  *     summary: Get Transactions by User
  *     tags: [Payment]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId

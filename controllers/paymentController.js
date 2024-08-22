@@ -5,7 +5,7 @@ const initializePayment = async (req, res, next) => {
   try {
     const paymentData = {
       email: req.body.email,
-      amount: req.body.amount,
+      amount: req.body.amount * 100,
       callback_url: `${req.protocol}://${req.get(
         "host"
       )}/v1/payment/paystack/callback`,
@@ -24,20 +24,17 @@ const initializePayment = async (req, res, next) => {
 
     const { authorization_url } = response.data.data;
 
-    console.log("response", response.data.data);
-    console.log("auth", authorization_url);
-
     // Redirect to Paystack payment page
     res.redirect(authorization_url);
   } catch (error) {
-    console.log(error);
     next(error);
     res.status(500).send("Error initializing payment");
   }
 };
 
 const verifyPayment = async (req, res) => {
-  const { reference, userId } = req.body;
+  const { reference } = req.query;
+  const { userId } = req.body;
 
   if (!reference || !userId) {
     return res
@@ -57,8 +54,7 @@ const verifyPayment = async (req, res) => {
 
     const { status, data } = response.data;
 
-    if (status === "success") {
-      // Handle successful payment
+    if (status) {
       const newTransaction = new transactionsModel({
         userId: userId,
         reference: data.reference,
@@ -67,10 +63,9 @@ const verifyPayment = async (req, res) => {
       });
 
       await newTransaction.save();
-      res.status(200).send({ message: "Payment successful", data });
+      res.status(200).send({ message: "Payment successful" });
     } else {
-      // Handle failed payment
-      res.status(400).send({ message: "Payment verification failed" });
+      res.status(400).send({ message: "Payment failed" });
     }
   } catch (error) {
     console.log(error);

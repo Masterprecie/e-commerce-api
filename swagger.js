@@ -11,8 +11,12 @@ const options = {
     },
     servers: [
       {
-        url: "https://e-commerce-api-fb6s.onrender.com/",
+        url: "http://localhost:3000/",
         description: "Local server",
+      },
+      {
+        url: "https://e-commerce-api-fb6s.onrender.com/",
+        description: "Production server",
       },
     ],
     components: {
