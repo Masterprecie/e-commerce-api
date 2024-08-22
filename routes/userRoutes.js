@@ -7,6 +7,7 @@ const {
   getAllProducts,
   createOrder,
   getCustomerOrders,
+  getProductsByCategory,
 } = require("../controllers/userController");
 
 const userRoutes = express.Router();
@@ -15,9 +16,18 @@ const userRoutes = express.Router();
 userRoutes.use(authenticatedUser);
 userRoutes.use(rolesAllowed(["user"]));
 
-userRoutes.get("/products/:page/:limit", getAllProducts);
+/**
+ * @swagger
+ * tags:
+ *   name: Products
+ *   description: Product management
+ */
+
+userRoutes.get("/products", getAllProducts);
 
 userRoutes.get("/product/:productId", getSingleProduct);
+
+userRoutes.get("/products/category", getProductsByCategory);
 
 userRoutes.post("/product/order", createOrder);
 

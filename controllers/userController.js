@@ -5,6 +5,38 @@ const getAllProducts = async (req, res, next) => {
   try {
     const { page, limit } = req.query;
     const products = await productModel.paginate({}, { page, limit });
+
+    if (products.docs.length === 0) {
+      return res.status(404).send({
+        message: "No products found",
+      });
+    }
+    res.status(200).send({ products });
+  } catch (error) {
+    next(error);
+    res.status(500).send({
+      message: "Internal server error",
+    });
+  }
+};
+
+const getProductsByCategory = async (req, res, next) => {
+  try {
+    const { page, limit, category } = req.query;
+    const query = {};
+
+    if (category) {
+      query.productCategory = category;
+    }
+
+    const products = await productModel.paginate(query, { page, limit });
+
+    if (products.docs.length === 0) {
+      return res.status(404).send({
+        message: "No products found",
+      });
+    }
+
     res.status(200).send({ products });
   } catch (error) {
     next(error);
@@ -17,7 +49,6 @@ const getAllProducts = async (req, res, next) => {
 const getSingleProduct = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    console.log(productId);
     const product = await productModel.findById(productId);
     if (!product) {
       return res.status(404).send({
@@ -151,4 +182,5 @@ module.exports = {
   getSingleProduct,
   createOrder,
   getCustomerOrders,
+  getProductsByCategory,
 };

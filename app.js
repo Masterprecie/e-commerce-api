@@ -6,10 +6,14 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
+const setupSwaggerDocs = require("./swagger");
+
+//routes-imports
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const sharedRoutes = require("./routes/sharedRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
@@ -29,10 +33,11 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+setupSwaggerDocs(app);
+
 //Connect to MongoDB
 mongoose
-  // .connect(process.env.MONGODB_URL)
-  .connect(process.env.MONGODB_URL_TEST)
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -40,10 +45,12 @@ mongoose
     console.log("Failed to connect to MongoDB", err);
   });
 
+//routes
 app.use("/v1/auth", authRoutes);
 app.use("/v1/profile", sharedRoutes);
 app.use("/v1/admin", adminRoutes);
 app.use("/v1/user", userRoutes);
+app.use("/v1/payment", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Precious E-commerce store!");

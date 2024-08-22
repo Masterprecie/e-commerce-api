@@ -22,7 +22,6 @@ const authenticatedUser = (req, res, next) => {
       });
       return;
     }
-
     jwt.verify(tokenItSelf, process.env.AUTH_KEY, (err, user) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
@@ -36,7 +35,6 @@ const authenticatedUser = (req, res, next) => {
         });
         return;
       }
-
       req.user = user;
       next();
     });

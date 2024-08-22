@@ -18,6 +18,13 @@ const adminRoutes = express.Router();
 adminRoutes.use(authenticatedUser);
 adminRoutes.use(rolesAllowed(["admin"]));
 
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Admin management
+ */
+
 adminRoutes.get("/products/:page/:limit", getAllProducts);
 
 adminRoutes.get("/product/:productId", getSingleProduct);

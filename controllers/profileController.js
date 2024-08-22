@@ -25,6 +25,7 @@ const profile = async (req, res, next) => {
 const profilePicture = async (req, res, next) => {
   try {
     const file = req.file.path;
+    console.log(file);
 
     const newProfilePictureURL = await uploadSingleImageToCloudinary(file);
 
