@@ -42,6 +42,8 @@ paymentRoutes.use(authenticatedUser);
  *               - email
  *               - amount
  *     responses:
+ *       200:
+ *        description: Success
  *       302:
  *         description: Redirect to Paystack payment page
  *       400:

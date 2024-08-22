@@ -24,8 +24,8 @@ const initializePayment = async (req, res, next) => {
 
     const { authorization_url } = response.data.data;
 
-    // Redirect to Paystack payment page
-    res.redirect(authorization_url);
+    // send the url to the frontend
+    res.status(200).send({ authorization_url });
   } catch (error) {
     next(error);
     res.status(500).send("Error initializing payment");
