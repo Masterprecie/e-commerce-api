@@ -11,8 +11,8 @@ const uploadMultipleImagesToCloudinary = async (files) => {
       cloudinary.uploader.upload(
         filePath,
         {
-          resource_type: "image",
-          upload_preset: "kodecamp4",
+          resource_type: process.env.CLOUDINARY_RESOURCE_TYPE,
+          upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
         },
         (error, result) => {
           if (error) {
@@ -33,8 +33,8 @@ const uploadMultipleImagesToCloudinary = async (files) => {
 const uploadSingleImageToCloudinary = async (file) => {
   try {
     const uploadResult = await cloudinary.uploader.upload(file, {
-      resource_type: "image",
-      upload_preset: "kodecamp4",
+      resource_type: process.env.CLOUDINARY_RESOURCE_TYPE,
+      upload_preset: process.env.CLOUDINARY_UPLOAD_PRESET,
     });
 
     // Remove the local file after successful upload

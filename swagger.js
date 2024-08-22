@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000/", // Change this to your base URL
+        url: "https://e-commerce-api-fb6s.onrender.com/",
         description: "Local server",
       },
     ],
@@ -38,7 +38,9 @@ const swaggerSpec = swaggerJSDoc(options);
 const setupSwaggerDocs = (app) => {
   // Route to serve the Swagger docs
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  console.log("Swagger docs available at http://localhost:3000/api-docs");
+  console.log(
+    "Swagger docs available at https://e-commerce-api-fb6s.onrender.com/api-docs"
+  );
 };
 
 module.exports = setupSwaggerDocs;
