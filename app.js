@@ -1,13 +1,16 @@
+const connectDB = require("./config/db");
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const mongoose = require("mongoose");
 require("dotenv").config();
 const cors = require("cors");
 const setupSwaggerDocs = require("./swagger");
+const passport = require("passport");
+const session = require("express-session");
 
+require("./utils/passport");
 //routes-imports
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -17,7 +20,26 @@ const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
+// Initialize session for Passport
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(cors());
+// app.use(
+//   cors({
+//     origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
+//     methods: "GET, POST, PATCH, DELETE, PUT",
+//     credentials: true,
+//   })
+// )
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -36,15 +58,7 @@ cloudinary.config({
 setupSwaggerDocs(app);
 
 //Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.log("Failed to connect to MongoDB", err);
-  });
-
+connectDB();
 //routes
 app.use("/v1/auth", authRoutes);
 app.use("/v1/profile", sharedRoutes);

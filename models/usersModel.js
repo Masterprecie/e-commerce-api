@@ -2,6 +2,9 @@ const { Schema, model } = require("mongoose");
 
 const userSchema = new Schema(
   {
+    googleId: {
+      type: String,
+    },
     firstName: {
       type: String,
       required: true,
@@ -25,7 +28,11 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      // Custom validator to require password only if not a Google user
+      required: function () {
+        // Password is required only if googleId is not provided (i.e., for email/password users)
+        return !this.googleId;
+      },
     },
     authToken: {
       type: String,

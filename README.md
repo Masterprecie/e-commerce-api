@@ -72,6 +72,8 @@ npm run dev
 - Cloudinary
 - Jest
 - Supertest
+- Google Auth
+- Joi (Validation)
 
 ## Contributing
 
@@ -86,7 +88,15 @@ npm run dev
 
 This project is licensed under the MIT License.
 
-## Documentation
+## Documentations
+
+# Swagger Docs
+
+```sh
+https://e-commerce-api-fb6s.onrender.com/api-docs/
+```
+
+# Postman Docs
 
 ```sh
 https://documenter.getpostman.com/view/21468149/2sA3kd9xPT

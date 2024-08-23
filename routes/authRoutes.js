@@ -1,4 +1,6 @@
 const express = require("express");
+const passport = require("passport");
+
 const {
   registerUser,
   verifyEmail,
@@ -6,6 +8,7 @@ const {
   forgetPassword,
   resetPassword,
   refreshToken,
+  googleAuthCallback,
 } = require("../controllers/authController");
 
 const authRoutes = express.Router();
@@ -16,6 +19,33 @@ const authRoutes = express.Router();
  *   name: Auth
  *   description: Authentication management
  */
+
+/**
+ * @swagger
+ * /v1/auth/google:
+ *   get:
+ *     summary: Google Auth
+ *     tags: [Auth]
+ *     security: []
+ *     responses:
+ *       200:
+ *         description: successfully
+ *       400:
+ *         description: Error
+ */
+
+// Google login route
+authRoutes.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+// Google callback route
+authRoutes.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  googleAuthCallback
+);
 
 /**
  * @swagger

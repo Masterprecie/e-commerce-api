@@ -4,9 +4,67 @@ const { v4 } = require("uuid");
 const { sendEmail } = require("../utils/emailUtils");
 const jwt = require("jsonwebtoken");
 const userTokenModel = require("../models/userToken");
+const { validateAuth } = require("../utils/validation");
+
+const googleAuthCallback = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    // Check if user object exists
+    if (!user) {
+      return res.status(401).json({ message: "Authentication failed!" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.AUTH_KEY,
+      { expiresIn: "30m" }
+    );
+
+    // Generate Refresh token
+    const refreshToken = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.REFRESH_KEY,
+      { expiresIn: "7d" }
+    );
+
+    // Send the tokens and user info as response
+    return res.status(200).json({
+      message: "Login successful",
+      access_token: token,
+      refresh_token: refreshToken,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+      },
+    });
+  } catch (err) {
+    console.error("Error in Google Auth Callback:", err);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};
 
 const registerUser = async (req, res, next) => {
   try {
+    const error = validateAuth(req.body);
+    if (error) {
+      return res.status(400).send({
+        message: error.details[0].message,
+      });
+    }
     const { firstName, lastName, email, password } = req.body;
 
     const existingUser = await usersModel.findOne({ email: email });
@@ -41,6 +99,7 @@ const registerUser = async (req, res, next) => {
       message: "User created successfully",
     });
   } catch (error) {
+    console.log(error);
     next(error);
     res.status(500).send({
       message: "An error occurred while creating the user",
@@ -102,6 +161,12 @@ const verifyEmail = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   try {
+    const error = validateAuth(req.body);
+    if (error) {
+      return res.status(400).send({
+        message: error.details[0].message,
+      });
+    }
     const { email, password } = req.body;
 
     const user = await usersModel.findOne({
@@ -298,4 +363,5 @@ module.exports = {
   forgetPassword,
   resetPassword,
   refreshToken,
+  googleAuthCallback,
 };
