@@ -5,6 +5,7 @@ const { sendEmail } = require("../utils/emailUtils");
 const jwt = require("jsonwebtoken");
 const userTokenModel = require("../models/userToken");
 const { validateAuth } = require("../utils/validation");
+const axios = require("axios");
 
 const googleAuthCallback = async (req, res, next) => {
   try {
@@ -54,6 +55,32 @@ const googleAuthCallback = async (req, res, next) => {
   } catch (err) {
     console.error("Error in Google Auth Callback:", err);
     return res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const googleAuth = async (req, res) => {
+  const { idToken } = req.body;
+  try {
+    const response = await axios.get(
+      `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`
+    );
+    const { sub: googleId, name, picture, email } = response.data;
+    let user = await usersModel.findOne({ googleId });
+    if (!user) {
+      user = new usersModel({
+        googleId,
+        firstName: name.split(" ")[0],
+        lastName: name.split(" ")[1] || "",
+        email,
+        profilePictureURL: picture,
+        isEmailVerified: true,
+      });
+      await user.save();
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    res.status(400).json({ error: "Token verification failed" });
   }
 };
 
@@ -364,4 +391,5 @@ module.exports = {
   resetPassword,
   refreshToken,
   googleAuthCallback,
+  googleAuth,
 };

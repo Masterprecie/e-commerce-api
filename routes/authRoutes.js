@@ -9,6 +9,7 @@ const {
   resetPassword,
   refreshToken,
   googleAuthCallback,
+  googleAuth,
 } = require("../controllers/authController");
 
 const authRoutes = express.Router();
@@ -46,6 +47,8 @@ authRoutes.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   googleAuthCallback
 );
+
+authRoutes.post("/google/token", googleAuth);
 
 /**
  * @swagger
