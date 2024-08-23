@@ -60,13 +60,42 @@ const googleAuthCallback = async (req, res, next) => {
 
 const googleAuth = async (req, res) => {
   const { idToken } = req.body;
+
   try {
+    // Verify the Google ID token
     const response = await axios.get(
       `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`
     );
     const { sub: googleId, name, picture, email } = response.data;
-    let user = await usersModel.findOne({ googleId });
-    if (!user) {
+
+    // Check if the user exists by email
+    let user = await usersModel.findOne({ email });
+
+    if (user) {
+      // If the user exists and Google ID is present, log them in
+      if (user.googleId === googleId) {
+        console.log("User already exists and logged in:", user);
+      }
+      // If email exists but Google ID is missing, update the user with Google ID
+      else if (!user.googleId) {
+        console.log("User exists but missing Google ID. Updating...");
+        user.googleId = googleId;
+        user.profilePictureURL = picture; // Update profile picture as well if necessary
+        user.firstName = name.split(" ")[0]; // Update first name if necessary
+        user.lastName = name.split(" ")[1] || ""; // Update last name if necessary
+        await user.save();
+        console.log("User updated with Google ID:", user);
+      }
+      // If email exists and Google ID is different, this would be an odd case (possible user conflict)
+      else {
+        console.error("Google ID mismatch for existing email.");
+        return res
+          .status(400)
+          .send({ error: "Google ID mismatch for this email." });
+      }
+    } else {
+      // Create a new user if the email doesn't exist
+      console.log("Creating a new user...");
       user = new usersModel({
         googleId,
         firstName: name.split(" ")[0],
@@ -75,12 +104,23 @@ const googleAuth = async (req, res) => {
         profilePictureURL: picture,
         isEmailVerified: true,
       });
-      await user.save();
+      await user.save(); // Save the new user
+      console.log("New user saved:", user);
     }
-    res.status(200).json({ user });
+
+    // Send the user information back to the frontend
+    res.status(200).send({ user });
   } catch (error) {
-    console.error("Error verifying token:", error);
-    res.status(400).json({ error: "Token verification failed" });
+    console.error("Error during Google authentication:", error);
+
+    // Handle specific duplicate key error (if using unique constraints)
+    if (error.code === 11000) {
+      return res
+        .status(400)
+        .send({ error: "Duplicate email, user already exists" });
+    }
+
+    res.status(400).json({ error: "Token verification or user saving failed" });
   }
 };
 
