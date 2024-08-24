@@ -10,6 +10,7 @@ const {
   refreshToken,
   googleAuthCallback,
   googleAuth,
+  googleAuthIdToken,
 } = require("../controllers/authController");
 
 const authRoutes = express.Router();
@@ -48,7 +49,9 @@ authRoutes.get(
   googleAuthCallback
 );
 
-authRoutes.post("/google/token", googleAuth);
+authRoutes.post("/google/", googleAuth);
+
+authRoutes.post("/google/token", googleAuthIdToken);
 
 /**
  * @swagger

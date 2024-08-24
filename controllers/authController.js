@@ -153,72 +153,110 @@ const googleAuth = async (req, res) => {
   }
 };
 
-// const googleAuth = async (req, res) => {
-//   const { idToken } = req.body;
-//   console.log(idToken);
+const googleAuthIdToken = async (req, res) => {
+  const { idToken } = req.body;
 
-//   try {
-//     // Verify the Google ID token
-//     const response = await axios.get(
-//       `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`
-//     );
-//     const { sub: googleId, name, picture, email } = response.data;
+  try {
+    // Verify the Google ID token
+    const response = await axios.get(
+      `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`
+    );
+    const { sub: googleId, name, picture, email } = response.data;
 
-//     // Check if the user exists by email
-//     let user = await usersModel.findOne({ email });
+    // Check if the user exists by email
+    let user = await usersModel.findOne({ email });
 
-//     if (user) {
-//       // If the user exists and Google ID is present, log them in
-//       if (user.googleId === googleId) {
-//         console.log("User already exists and logged in:", user);
-//       }
-//       // If email exists but Google ID is missing, update the user with Google ID
-//       else if (!user.googleId) {
-//         console.log("User exists but missing Google ID. Updating...");
-//         user.googleId = googleId;
-//         user.profilePictureURL = picture; // Update profile picture as well if necessary
-//         user.firstName = name.split(" ")[0]; // Update first name if necessary
-//         user.lastName = name.split(" ")[1] || ""; // Update last name if necessary
-//         await user.save();
-//         console.log("User updated with Google ID:", user);
-//       }
-//       // If email exists and Google ID is different, this would be an odd case (possible user conflict)
-//       else {
-//         console.error("Google ID mismatch for existing email.");
-//         return res
-//           .status(400)
-//           .send({ error: "Google ID mismatch for this email." });
-//       }
-//     } else {
-//       // Create a new user if the email doesn't exist
-//       console.log("Creating a new user...");
-//       user = new usersModel({
-//         googleId,
-//         firstName: name.split(" ")[0],
-//         lastName: name.split(" ")[1] || "",
-//         email,
-//         profilePictureURL: picture,
-//         isEmailVerified: true,
-//       });
-//       await user.save(); // Save the new user
-//       console.log("New user saved:", user);
-//     }
+    if (user) {
+      // If the user exists and Google ID matches, log them in
+      if (user.googleId === googleId) {
+        console.log("User already exists and logged in:", user);
+      }
+      // If email exists but Google ID is missing, update the user with Google ID
+      else if (!user.googleId) {
+        console.log("User exists but missing Google ID. Updating...");
+        user.googleId = googleId;
+        user.profilePictureURL = picture; // Update profile picture
+        user.firstName = name.split(" ")[0]; // Update first name
+        user.lastName = name.split(" ")[1] || ""; // Update last name
+        await user.save();
+        console.log("User updated with Google ID:", user);
+      }
+      // Handle potential Google ID mismatch case
+      else {
+        console.error("Google ID mismatch for existing email.");
+        return res
+          .status(400)
+          .send({ error: "Google ID mismatch for this email." });
+      }
+    } else {
+      // Create a new user if the email doesn't exist
+      console.log("Creating a new user...");
+      user = new usersModel({
+        googleId,
+        firstName: name.split(" ")[0],
+        lastName: name.split(" ")[1] || "",
+        email,
+        profilePictureURL: picture,
+        isEmailVerified: true, // verify email since Google OAuth is used
+      });
 
-//     // Send the user information back to the frontend
-//     res.status(200).send({ user });
-//   } catch (error) {
-//     console.error("Error during Google authentication:", error);
+      await user.save();
+      console.log("New user saved:", user);
+    }
 
-//     // Handle specific duplicate key error (if using unique constraints)
-//     if (error.code === 11000) {
-//       return res
-//         .status(400)
-//         .send({ error: "Duplicate email, user already exists" });
-//     }
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.AUTH_KEY,
+      { expiresIn: "3m" } // You might want a longer expiry for practical use
+    );
 
-//     res.status(400).json({ error: "Token verification or user saving failed" });
-//   }
-// };
+    // Generate Refresh token
+    const refreshToken = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.REFRESH_KEY,
+      { expiresIn: "7d" }
+    );
+
+    // Save refresh token to the user's document
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // Send the user information, JWT, and refresh token back to the frontend
+    res.status(200).send({
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        email: user.email,
+        picture: user.profilePictureURL,
+      },
+      access_token: token,
+      refresh_token: refreshToken,
+    });
+  } catch (error) {
+    console.error("Error during Google authentication:", error);
+
+    // Handle specific duplicate key error (e.g., if using unique constraints)
+    if (error.code === 11000) {
+      return res
+        .status(400)
+        .send({ error: "Duplicate email, user already exists" });
+    }
+
+    // Handle token verification or saving errors
+    res.status(400).json({ error: "Token verification or user saving failed" });
+  }
+};
 
 const registerUser = async (req, res, next) => {
   try {
@@ -528,4 +566,5 @@ module.exports = {
   refreshToken,
   googleAuthCallback,
   googleAuth,
+  googleAuthIdToken,
 };
