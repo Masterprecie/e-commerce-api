@@ -44,7 +44,7 @@ app.use(cors());
 // Configure CORS to allow requests from your frontend origin
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace with your frontend origin
+    origin: ["http://localhost:5173", "https://presh-auth.netlify.app/"], // Replace with your frontend origin
     methods: "GET, POST, PATCH, DELETE, PUT",
     credentials: true,
   })
