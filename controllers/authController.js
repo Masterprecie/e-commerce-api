@@ -39,19 +39,20 @@ const googleAuthCallback = async (req, res, next) => {
     );
 
     // Send the tokens and user info as response
-    return res.status(200).json({
-      message: "Login successful",
-      access_token: token,
-      refresh_token: refreshToken,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        isEmailVerified: user.isEmailVerified,
-      },
-    });
+    // return res.status(200).json({
+    //   message: "Login successful",
+    //   access_token: token,
+    //   refresh_token: refreshToken,
+    //   user: {
+    //     id: user._id,
+    //     firstName: user.firstName,
+    //     lastName: user.lastName,
+    //     email: user.email,
+    //     role: user.role,
+    //     isEmailVerified: user.isEmailVerified,
+    //   },
+    // });
+    return res.redirect(`http://localhost:5173/`);
   } catch (err) {
     console.error("Error in Google Auth Callback:", err);
     return res.status(500).json({ message: "Server Error" });
@@ -60,6 +61,7 @@ const googleAuthCallback = async (req, res, next) => {
 
 const googleAuth = async (req, res) => {
   const { idToken } = req.body;
+  console.log(idToken);
 
   try {
     // Verify the Google ID token
@@ -263,7 +265,7 @@ const loginUser = async (req, res, next) => {
         role: user.role,
       },
       process.env.AUTH_KEY,
-      { expiresIn: "30m" }
+      { expiresIn: "3m" }
     );
 
     const refreshToken = jwt.sign(
@@ -279,7 +281,7 @@ const loginUser = async (req, res, next) => {
     user.refreshToken = refreshToken;
     await user.save();
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Login successful",
       access_token: token,
       refresh_token: refreshToken,
@@ -409,7 +411,7 @@ const refreshToken = async (req, res, next) => {
         role: user.role,
       },
       process.env.AUTH_KEY,
-      { expiresIn: "30m" }
+      { expiresIn: "3m" }
     );
     res.status(200).send({
       message: "Token refreshed successfully",

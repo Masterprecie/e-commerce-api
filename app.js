@@ -40,6 +40,16 @@ app.use(cors());
 //     credentials: true,
 //   })
 // )
+
+// Configure CORS to allow requests from your frontend origin
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend origin
+    methods: "GET, POST, PATCH, DELETE, PUT",
+    credentials: true,
+  })
+);
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -60,11 +70,11 @@ setupSwaggerDocs(app);
 //Connect to MongoDB
 connectDB();
 //routes
-app.use("/v1/auth", authRoutes);
-app.use("/v1/profile", sharedRoutes);
-app.use("/v1/admin", adminRoutes);
-app.use("/v1/user", userRoutes);
-app.use("/v1/payment", paymentRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/profile", sharedRoutes);
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Precious E-commerce store!");
