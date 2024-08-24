@@ -60,15 +60,9 @@ const googleAuthCallback = async (req, res, next) => {
 };
 
 const googleAuth = async (req, res) => {
-  const { idToken } = req.body;
+  const { googleId, email, name, picture } = req.body;
 
   try {
-    // Verify the Google ID token with Google's token info endpoint
-    const response = await axios.get(
-      `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`
-    );
-    const { sub: googleId, name, picture, email } = response.data;
-
     // Check if the user exists by email
     let user = await usersModel.findOne({ email });
 
@@ -155,7 +149,7 @@ const googleAuth = async (req, res) => {
         .send({ error: "Duplicate email, user already exists" });
     }
 
-    res.status(400).json({ error: "Token verification or user saving failed" });
+    res.status(400).json({ error: "Authentication or user saving failed" });
   }
 };
 
