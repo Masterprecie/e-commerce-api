@@ -24,7 +24,7 @@ const authRoutes = express.Router();
 
 /**
  * @swagger
- * /v1/auth/google:
+ * /api/v1/auth/google:
  *   get:
  *     summary: Google Auth
  *     tags: [Auth]
@@ -55,7 +55,7 @@ authRoutes.post("/google/token", googleAuthIdToken);
 
 /**
  * @swagger
- * /v1/auth/register:
+ * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
@@ -91,7 +91,7 @@ authRoutes.post("/register", registerUser);
 
 /**
  * @swagger
- * /v1/auth/verify-email/{token}:
+ * /api/v1/auth/verify-email/{token}:
  *   get:
  *     summary: Verify email address
  *     tags: [Auth]
@@ -116,7 +116,7 @@ authRoutes.get("/verify-email/:token", verifyEmail);
 
 /**
  * @swagger
- * /v1/auth/login:
+ * /api/v1/auth/login:
  *   post:
  *     summary: Login a user
  *     tags: [Auth]
@@ -146,7 +146,7 @@ authRoutes.post("/login", loginUser);
 
 /**
  * @swagger
- * /v1/auth/refresh-token:
+ * /api/v1/auth/refresh-token:
  *   post:
  *     summary: Refresh Token
  *     tags: [Auth]
@@ -173,7 +173,7 @@ authRoutes.post("/refresh-token", refreshToken);
 
 /**
  * @swagger
- * /v1/auth/forget-password:
+ * /api/v1/auth/forget-password:
  *   post:
  *     summary: Forget password
  *     tags: [Auth]
