@@ -19,7 +19,7 @@ paymentRoutes.use(authenticatedUser);
 
 /**
  * @swagger
- * /v1/payment/paystack/pay:
+ * /api/v1/payment/paystack/pay:
  *   post:
  *     summary: Payment
  *     tags: [Payment]
@@ -54,7 +54,7 @@ paymentRoutes.use(authenticatedUser);
 paymentRoutes.post("/paystack/pay", initializePayment);
 /**
  * @swagger
- * /v1/payment/paystack/callback:
+ * /api/v1/payment/paystack/callback:
  *   post:
  *     summary: Verify Payment
  *     tags: [Payment]
@@ -91,7 +91,7 @@ paymentRoutes.post("/paystack/callback", verifyPayment);
 
 /**
  * @swagger
- * /v1/payment/transactions/{userId}:
+ * /api/v1/payment/transactions/{userId}:
  *   get:
  *     summary: Get Transactions by User
  *     tags: [Payment]
