@@ -212,7 +212,7 @@ const googleAuthIdToken = async (req, res) => {
         role: user.role,
       },
       process.env.AUTH_KEY,
-      { expiresIn: "3m" } // You might want a longer expiry for practical use
+      { expiresIn: "30m" }
     );
 
     // Generate Refresh token
@@ -397,7 +397,7 @@ const loginUser = async (req, res, next) => {
         role: user.role,
       },
       process.env.AUTH_KEY,
-      { expiresIn: "3m" }
+      { expiresIn: "30m" }
     );
 
     const refreshToken = jwt.sign(
@@ -543,7 +543,7 @@ const refreshToken = async (req, res, next) => {
         role: user.role,
       },
       process.env.AUTH_KEY,
-      { expiresIn: "3m" }
+      { expiresIn: "30m" }
     );
     res.status(200).send({
       message: "Token refreshed successfully",

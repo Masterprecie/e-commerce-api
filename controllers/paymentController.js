@@ -8,7 +8,7 @@ const initializePayment = async (req, res, next) => {
       amount: req.body.amount * 100,
       callback_url: `${req.protocol}://${req.get(
         "host"
-      )}/v1/payment/paystack/callback`,
+      )}/api/v1/payment/paystack/callback`,
     };
     console.log(paymentData);
     const headers = {
