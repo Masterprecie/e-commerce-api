@@ -16,7 +16,7 @@ sharedRoutes.use(authenticatedUser);
 
 /**
  * @swagger
- * /v1/profile:
+ * /api/v1/profile:
  *   get:
  *     summary: Get Profile
  *     tags: [Profile]
@@ -35,7 +35,7 @@ sharedRoutes.get("/", profile);
 
 /**
  * @swagger
- * /v1/profile/upload-profile-picture:
+ * /api/v1/profile/upload-profile-picture:
  *   put:
  *     summary: Upload Profile Picture
  *     tags: [Profile]
