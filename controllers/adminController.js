@@ -77,9 +77,9 @@ const getSingleProduct = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   try {
+    const files = req.files;
     const { productId } = req.params;
     const { productName, description, price, stock } = req.body;
-    const files = req.files;
 
     const updateData = {};
 
