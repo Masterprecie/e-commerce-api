@@ -3,41 +3,27 @@ const productModel = require("../models/productModel");
 
 const getAllProducts = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const products = await productModel.paginate({}, { page, limit });
-
-    if (products.docs.length === 0) {
-      return res.status(404).send({
-        message: "No products found",
-      });
-    }
-    res.status(200).send({ products });
-  } catch (error) {
-    next(error);
-    res.status(500).send({
-      message: "Internal server error",
-    });
-  }
-};
-
-const getProductsByCategory = async (req, res, next) => {
-  try {
+    console.log(req.query);
     const { page, limit, category } = req.query;
     const query = {};
 
     if (category) {
-      query.productCategory = category;
+      query.category = category;
     }
-
     const products = await productModel.paginate(query, { page, limit });
 
     if (products.docs.length === 0) {
-      return res.status(404).send({
-        message: "No products found",
-      });
+      if (category) {
+        return res.status(404).send({
+          message: "No category found",
+        });
+      } else {
+        return res.status(404).send({
+          message: "No products found",
+        });
+      }
     }
-
-    res.status(200).send({ products });
+    res.status(200).json({ products });
   } catch (error) {
     next(error);
     res.status(500).send({
@@ -55,7 +41,7 @@ const getSingleProduct = async (req, res, next) => {
         message: "Product not found",
       });
     }
-    res.status(200).send({ product });
+    res.status(200).json(product);
   } catch (error) {
     next(error);
     res.status(500).send({
@@ -118,7 +104,7 @@ const createOrder = async (req, res, next) => {
         totalCost: totalOrderCost,
       });
 
-      res.status(201).send({
+      res.status(201).json({
         message: "Order created successfully",
         order: newOrder,
       });
@@ -164,7 +150,7 @@ const getCustomerOrders = async (req, res, next) => {
       });
       return;
     }
-    res.status(200).send({
+    res.status(200).json({
       message: "Customer orders fetched successfully",
       orders,
     });
@@ -182,5 +168,4 @@ module.exports = {
   getSingleProduct,
   createOrder,
   getCustomerOrders,
-  getProductsByCategory,
 };

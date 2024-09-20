@@ -266,7 +266,7 @@ const registerUser = async (req, res, next) => {
         message: error.details[0].message,
       });
     }
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, isAdmin } = req.body;
 
     const existingUser = await usersModel.findOne({ email: email });
 
@@ -280,7 +280,7 @@ const registerUser = async (req, res, next) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     const token = v4();
-
+    const role = isAdmin ? "admin" : "user";
     await usersModel.create({
       firstName: firstName,
       lastName: lastName,
@@ -288,12 +288,13 @@ const registerUser = async (req, res, next) => {
       password: hashedPassword,
       authToken: token,
       authPurpose: "verify-email",
+      role: role,
     });
 
     await sendEmail(
       email,
       "Email Verification",
-      `${firstName} Please Click on this link to verify your email: http://localhost:3000/v1/auth/verify-email/${token}`
+      `${firstName} Please Click on this link to verify your email: https://e-commerce-api-fb6s.onrender.com/api/v1/auth/verify-email/${token}`
     );
 
     res.status(201).send({
@@ -454,7 +455,7 @@ const forgetPassword = async (req, res, next) => {
       token,
     }).save();
 
-    const resetPasswordLink = `http://localhost:3000/v1/auth/reset-password/${token}`;
+    const resetPasswordLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
     await sendEmail(
       email,

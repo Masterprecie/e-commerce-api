@@ -14,7 +14,7 @@ require("./utils/passport");
 //routes-imports
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const userRoutes = require("./routes/userRoutes");
+const productRoutes = require("./routes/productRoutes");
 const sharedRoutes = require("./routes/sharedRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 
@@ -33,22 +33,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors());
+
+// Configure CORS to allow requests from your frontend origin
 // app.use(
 //   cors({
-//     origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
+//     origin: ["http://localhost:5173", "https://presh-auth.netlify.app/"], // Replace with your frontend origin
 //     methods: "GET, POST, PATCH, DELETE, PUT",
 //     credentials: true,
 //   })
-// )
-
-// Configure CORS to allow requests from your frontend origin
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://presh-auth.netlify.app/"], // Replace with your frontend origin
-    methods: "GET, POST, PATCH, DELETE, PUT",
-    credentials: true,
-  })
-);
+// );
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -73,7 +66,7 @@ connectDB();
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/profile", sharedRoutes);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 
 app.get("/", (req, res) => {

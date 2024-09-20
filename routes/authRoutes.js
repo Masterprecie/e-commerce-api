@@ -80,9 +80,14 @@ authRoutes.post("/google/token", googleAuthIdToken);
  *                 type: string
  *               password:
  *                 type: string
+ *               isAdmin:
+ *                 type: boolean
+ *                 description: Set to true to register the user as an admin
  *     responses:
  *       201:
  *         description: User created successfully
+ *       400:
+ *         description: Bad request
  *       500:
  *         description: Internal server error
  */

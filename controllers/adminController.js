@@ -1,12 +1,29 @@
 const { order } = require("../models/orderModel");
 const productModel = require("../models/productModel");
+const transactionsModel = require("../models/transactionsModel");
 const { uploadMultipleImagesToCloudinary } = require("../utils/helpers");
 
 const getAllProducts = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const products = await productModel.paginate({}, { page, limit });
-    res.status(200).send({ products });
+    const { page, limit, category } = req.query;
+    const query = {};
+    if (category) {
+      query.category = category;
+    }
+
+    const products = await productModel.paginate(query, { page, limit });
+    if (products.docs.length === 0) {
+      if (category) {
+        return res.status(404).send({
+          message: "No category found",
+        });
+      } else {
+        return res.status(404).send({
+          message: "No products found",
+        });
+      }
+    }
+    res.status(200).json({ products });
   } catch (error) {
     next(error);
     res.status(500).send({
@@ -28,11 +45,19 @@ const addProduct = async (req, res, next) => {
 
     // console.log(imageUrls);
 
-    const { productName, description, price, stock } = req.body;
+    const { productName, description, price, stock, category } = req.body;
 
     // Check if all required fields are provided
-    if (!productName || !description || !price || !stock) {
+    if (!productName || !description || !price || !stock || !category) {
       return res.status(400).send({ message: "All fields are required" });
+    }
+
+    // Check if a product with the same name already exists
+    const existingProduct = await productModel.findOne({ productName });
+    if (existingProduct) {
+      return res
+        .status(400)
+        .send({ message: "Product with this name already exists" });
     }
 
     await productModel.create({
@@ -40,6 +65,7 @@ const addProduct = async (req, res, next) => {
       description,
       price,
       stock,
+      category,
       productImages: imageUrls,
     });
 
@@ -79,7 +105,7 @@ const updateProduct = async (req, res, next) => {
   try {
     const files = req.files;
     const { productId } = req.params;
-    const { productName, description, price, stock } = req.body;
+    const { productName, description, price, stock, category } = req.body;
 
     const updateData = {};
 
@@ -88,6 +114,7 @@ const updateProduct = async (req, res, next) => {
     if (description) updateData.description = description;
     if (price) updateData.price = price;
     if (stock) updateData.stock = stock;
+    if (category) updateData.category = category;
     // Check if new images are uploaded
     if (files && files.length > 0) {
       const imageUrls = await uploadMultipleImagesToCloudinary(files);
@@ -103,7 +130,7 @@ const updateProduct = async (req, res, next) => {
       }
     );
 
-    res.status(200).send({
+    res.status(200).json({
       message: "Product updated successfully",
       updatedProduct,
     });
@@ -212,6 +239,34 @@ const approveOrRejectOrder = async (req, res, next) => {
   }
 };
 
+const getAllPaymentsDetails = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+
+    const options = {
+      page,
+      limit,
+      sort: { createdAt: -1 },
+    };
+
+    const payments = await transactionsModel.paginate({}, options);
+
+    if (!payments || payments.docs.length === 0) {
+      res.status(400).send({
+        message: "No payments found ",
+      });
+      return;
+    }
+    res.status(200).json(payments);
+  } catch (error) {
+    console.log(error);
+    next(error);
+    res.status(500).send({
+      message: "Internal server error",
+    });
+  }
+};
+
 module.exports = {
   getAllProducts,
   addProduct,
@@ -220,4 +275,5 @@ module.exports = {
   deleteProduct,
   getAllCustomerOrders,
   approveOrRejectOrder,
+  getAllPaymentsDetails,
 };
